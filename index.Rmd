@@ -12,9 +12,10 @@ Emanuela Giovanna Calabi
 emanuela.calabi@helsinki.fi
 
 ## Introduction
+The object of this analysis is the Human Development Index. The "human" dataset contains various indicators for each country, which quantify socio-economical wealth and gender equality of such country. More info on the data can be found here: http://hdr.undp.org/en/content/human-development-index-hdi.
 
 ## Data wrangling
-You can find my data wrangling exercise at this link: https://github.com/egcmi/IODS-final/blob/master/create_human.R
+he "human" dataset has been created joining two datasets ("human_development" and "gender_inequality") and selecting 8 variables to keep for the analysis. Such manipulations of the dataset can be found in my data wrangling exercise at this link: https://github.com/egcmi/IODS-final/blob/master/create_human.R
 
 ## Data analysis
 ```{r}
