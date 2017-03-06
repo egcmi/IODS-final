@@ -59,9 +59,9 @@ GI <- mutate(GI, lab.fm = lab.f/lab.m)
 human <- inner_join(HD, GI, by="country")
 
 # choose columns to keep
-## this has been changed from the data wrangling of weeks 4-5, the variable parl.f has been removed as there wasn't much correlation to the other variables, instead the variable GII is kept.
+## this has been changed from the data wrangling of weeks 4-5, the variables lab.fm and parl.f have been removed as there wasn't much correlation to the other variables, instead the variable GII is kept.
 ## also edu.mean is kept, contrary to what was done in weeks 4-5
-keep <- c("country", "edu2.fm", "lab.fm", "life.exp", "edu.exp", "edu.mean", "GNI", "GII", "mat.mor", "ado.birth")
+keep <- c("country", "edu2.fm", "life.exp", "edu.exp", "edu.mean", "GNI", "GII", "mat.mor", "ado.birth")
 human <- select(human, one_of(keep))
 
 # GNI to numeric

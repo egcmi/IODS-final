@@ -11,17 +11,69 @@ Emanuela Giovanna Calabi
 
 emanuela.calabi@helsinki.fi
 
+## Abstract
+
 ## Introduction
+
 The object of this analysis is the Human Development Index. The "human" dataset contains various indicators for each country, which quantify socio-economical wealth and gender equality of such country. More info on the data can be found here: http://hdr.undp.org/en/content/human-development-index-hdi.
+The following analysis concerns the correlation between ......... . I expect that .... .
 
 ## Data wrangling
-he "human" dataset has been created joining two datasets ("human_development" and "gender_inequality") and selecting 8 variables to keep for the analysis. Such manipulations of the dataset can be found in my data wrangling exercise at this link: https://github.com/egcmi/IODS-final/blob/master/create_human.R
+
+The "human" dataset has been created by joining two datasets ("human_development" and "gender_inequality"). Variables have been renamed to shorter and more intuitive names for practical reasons. The last 7 observations concerning regions of the world have been removed to focus on countries only. In the end 8 variables were selected to keep for the analysis. Such manipulations of the dataset can be found in my data wrangling exercise at this link: https://github.com/egcmi/IODS-final/blob/master/create_human.R
 
 ## Data analysis
+
+Let us start by reading and exploring the data.
 ```{r}
-human <- read.csv("~/Desktop/IODS/IODS-final/human.txt", header=TRUE, row.names=1)
+human <- read.csv("https://raw.githubusercontent.com/egcmi/IODS-final/master/human.txt", header=TRUE, row.names=1)
 dim(human)
+```
+
+There are 155 observations of 8 variables, i.e. 155 countries are taken into consideration. The variable names and their meanings are:
+
+ * **edu2.fm**: Ratio between females and males with secondary education
+ * **lab.fm**: Ratio between labour force participation rate of females and males
+ * **life.exp**: Life expectancy at birth
+ * **edu.exp**: Expected years of education
+ * **edu.mean**: Mean years of education
+ * **GNI**: Gross National Income per capita
+ * **GII**: Gender Inequality Index
+ * **mat.mor**: Maternal mortality ratio
+ * **ado.birth**: Adolescent birthrate
+
+```{r}
 str(human)
 summary(human)
+```
+
+Let us visualise the data using ggpairs. None of the variables show normal distribution. In particular GNI, mat.mor and ado.birth are very left skewed, while edu2.fm, lab.fm, life.exp and edu.mean are slightly right skewed. Edu.exp has exponential distribution while GII is multimodal.
+```{r}
+library(GGally)
+ggpairs(human)
+```
+
+
+Now let us plot the correlation between the variables in the dataset. We can see that edu2.fm is positively correlated to life.exp, edu.exp, edu.mean and GNI and all these variables are strongly positively correlated with each other. Notice how the graph appears split by a big, red rectangle indicating strong negative correlation. The variables concerned in such rectangle are GII, mat.mor and ado.birth which negatively correlate to edu2.fm, life.exp, edu.exp, edu.mean and GNI. Unsurprisingly GII, mat.mor and ado.birth are strongly positively correlated, meaning that maternal mortality and adolescent birthrate are higher in such countries where gender inequality is stronger. Lab.fm shows no particular correlation to any of the variables in the dataset.
+```{r}
+library(magrittr)
+library(corrplot)
+cor(human) %>% corrplot(method="circle", type="upper", cl.pos="b", tl.pos="d", tl.cex=0.6)
+
+```
+
+
+```{r}
+pca_human <- prcomp(human)
+biplot(pca_human, choices=1:2)
+human_std <- scale(human)
+summary(human_std)
+cat("\n")
+pca_human_std <- prcomp(human_std)
+sum_pca = summary(pca_human_std)
+sum_pca
+cat("\n")
+round(100*sum_pca$importance[2, ], digits = 1)
+biplot(pca_human_std, choices=1:2, cex=c(0.5, 1), col=c("gray", "red"))
 ```
 
