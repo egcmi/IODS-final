@@ -1,2 +1,11 @@
-# Introduction to Open Data Science
-## Final assignment
+# Introduction to Open Data Science - Final assignment
+
+Emanuela Giovanna Calabi
+06.03.17
+emanuela.calabi@helsinki.fi
+
+## Introduction
+
+## Data wrangling
+
+## Data analysis
