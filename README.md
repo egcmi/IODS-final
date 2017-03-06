@@ -4,5 +4,7 @@ This is the repository for the final assignment of the MOOC "Introduction to Ope
 Link to my GitHub page: https://egcmi.github.io/IODS-final/
 
 Emanuela Giovanna Calabi
+
 06.03.17
+
 emanuela.calabi@helsinki.fi

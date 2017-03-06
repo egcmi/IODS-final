@@ -1,11 +1,26 @@
-# Introduction to Open Data Science - Final assignment
+---
+title: "Introduction to Open Data Science - Final assignment"
+output:
+  html_document:
+    code_folding: hide
+---
 
 Emanuela Giovanna Calabi
+
 06.03.17
+
 emanuela.calabi@helsinki.fi
 
 ## Introduction
 
 ## Data wrangling
+You can find my data wrangling exercise at this link: https://github.com/egcmi/IODS-final/blob/master/create_human.R
 
 ## Data analysis
+```{r}
+human <- read.csv("~/Desktop/IODS/IODS-final/human.txt", header=TRUE, row.names=1)
+dim(human)
+str(human)
+summary(human)
+```
+

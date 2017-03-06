@@ -1,8 +1,10 @@
 # Emanuela Giovanna Calabi
 # 06.03.17
 # emanuela.calabi@helsinki.fi
+
 # Data wrangling for final assignment
-# "Human Development Index", info: http://hdr.undp.org/en/content/human-development-index-hdi
+# This file creates the dataset for the analysis and saves it in a table. For the final dataset, two separate datasets are joined (human_development and gender_inequality)
+# Data taken from "Human Development Index", info: http://hdr.undp.org/en/content/human-development-index-hdi
 
 library(dplyr)
 library(stringr)
@@ -48,6 +50,8 @@ colnames(GI)[10] <- "lab.m"
 colnames(GI)
 
 # new variables
+## edu2.fm = ratio between females with secondary education and males with secondary education
+## lab.fm = ratio between labour force participation rate of females and labour force participation rate of males
 GI <- mutate(GI, edu2.fm = edu2.f/edu2.m)
 GI <- mutate(GI, lab.fm = lab.f/lab.m)
 
