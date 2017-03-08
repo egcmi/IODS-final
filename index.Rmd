@@ -16,7 +16,7 @@ emanuela.calabi@helsinki.fi
 ## Introduction
 
 The object of this analysis is the Human Development Index. The "human" dataset contains various indicators for each country, which quantify socio-economical wealth and gender equality of such country. More info on the data can be found here: http://hdr.undp.org/en/content/human-development-index-hdi.
-The following analysis concerns the correlation between ......... . I expect that .... .
+The following analysis concerns the the mean years of education (edu.mean) and its relations to the other variables in the set. I expect that countries with a higher edu.mean have a high Gross National Income per capita, longer life expectancy at birth and longer expectancy of education. On the contrary, I suppose that a lower edu.mean corresponds to a higher Gender Inequality Index and a higher adolescent birthrate.
 
 ## Data wrangling
 
@@ -26,14 +26,13 @@ The "human" dataset has been created by joining two datasets ("human_development
 
 Let us start by reading and exploring the data.
 ```{r}
-human <- read.csv("https://raw.githubusercontent.com/egcmi/IODS-final/master/human.txt", header=TRUE, row.names=1)
+human <- read.csv("~/Desktop/IODS/IODS-final/human.txt", header=TRUE, row.names=1)
 dim(human)
 ```
 
 There are 155 observations of 8 variables, i.e. 155 countries are taken into consideration. The variable names and their meanings are:
 
  * **edu2.fm**: Ratio between females and males with secondary education
- * **lab.fm**: Ratio between labour force participation rate of females and males
  * **life.exp**: Life expectancy at birth
  * **edu.exp**: Expected years of education
  * **edu.mean**: Mean years of education
@@ -54,7 +53,7 @@ ggpairs(human)
 ```
 
 
-Now let us plot the correlation between the variables in the dataset. We can see that edu2.fm is positively correlated to life.exp, edu.exp, edu.mean and GNI and all these variables are strongly positively correlated with each other. Notice how the graph appears split by a big, red rectangle indicating strong negative correlation. The variables concerned in such rectangle are GII, mat.mor and ado.birth which negatively correlate to edu2.fm, life.exp, edu.exp, edu.mean and GNI. Unsurprisingly GII, mat.mor and ado.birth are strongly positively correlated, meaning that maternal mortality and adolescent birthrate are higher in such countries where gender inequality is stronger. Lab.fm shows no particular correlation to any of the variables in the dataset.
+Let us plot the correlation between the variables in the dataset. We can see that edu2.fm is positively correlated to life.exp, edu.exp, edu.mean and GNI and all these variables are strongly positively correlated to each other. Notice how the graph appears split by a big, red rectangle indicating strong negative correlation. The variables concerned in such rectangle are GII, mat.mor and ado.birth which negatively correlate to all other variables. Unsurprisingly GII, mat.mor and ado.birth are strongly positively correlated, meaning that maternal mortality and adolescent birthrate are higher in such countries where gender inequality is stronger.
 ```{r}
 library(magrittr)
 library(corrplot)
@@ -62,18 +61,79 @@ cor(human) %>% corrplot(method="circle", type="upper", cl.pos="b", tl.pos="d", t
 
 ```
 
+### Linear regression
+
+Let us perform linear regression on the human data. In this model we consider edu.mean as a target variable, whose explanatory variables are edu.exp, life.exp and edu2.fm. As we can see in the coefficients the standard error for edu.exp, life.exo and edu2.fm is between 0 and 1 and the P value is very low so we can conclude that there is a statistical relation between the explanatory variables and the target variable.
+```{r}
+lm(edu.mean ~ edu.exp + life.exp + edu2.fm, data=human) %>% summary
+```
+
+### Linear discriminant analysis
+
+Now let us perform Linear Discriminant Analysis in order to make predictions about the target variable edu.mean. The explanatory variables are edu.exp, life.exp and edu2.fm. As we can see in the Proportion of trace, Linear Discriminant 1 (LD1) describes 71.7% of the variance in the group. According to the coefficients of linear discriminants the explanatory variables are all relevant to edu.mean, being edu2.fm the most influent. 
 
 ```{r}
+library(MASS)
+lda_human <- lda(edu.mean ~ edu.exp + life.exp + edu2.fm, data=human)
+lda_human
+```
+
+Our next step is visualising the LDA by means of LDA biplot arrows. In the scatterplot we can see from the length of the arrows, edu2.fm is the variable which has the largest impact on edu.mean. Edu.exp and life.exp have minor influence.
+```{r}
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+plot(lda_human, col=human$edu.mean, pch=human$edu.mean, dimen=2)
+lda.arrows(lda_human, myscale = 1)
+```
+
+### K-means
+
+The final step of our analysis is K-means. The first step for K-means is finding the number of clusters that are needed. For this reason we compute the *total within cluster sum of squares* (TWCSS) first. We can see in the plot that the TWCSS drops significantly at 2. This means that 2 is the optimal number of clusters.
+```{r}
+dist_human <- dist(human)
+twcss <- sapply(1:10, function(k){kmeans(dist_human, k)$tot.withinss})
+plot(1:10, twcss, type='b')
+```
+
+After finding out the number of clusters needed, we can proceed and compute K-means. 
+```{r}
+set.seed(123)
+km_human <- kmeans(dist_human, centers=2)
+pairs(human, col=km_human$cluster)
+```
+
+
+Now let us perform Principal Component Analysis on the data and visualise the results by means of a biplot.
+```{r warning=FALSE}
 pca_human <- prcomp(human)
-biplot(pca_human, choices=1:2)
+biplot(pca_human, choices=1:2, cex=c(0.8, 1), col=c("gray", "red"))
+```
+
+Similar to the results we obtained in the Data Analysis task in Week 5 of the Introduction to Open Data Science course, we can only see one arrow indicating GNI. All other arrows representing the remaining variables are not visible because they have 0 length. This means that the variable GNI captures all the variance. However, the majority of countries' names apper as a conglomerate in the middle of the biplot, making it unreadable. For these reasons the biplot is not informative and we need to perform some further data manipulation prior to performing PCA.
+
+
+Let us standardise the dataset first.
+```{r}
 human_std <- scale(human)
 summary(human_std)
-cat("\n")
+```
+
+Secondly, we can now perform PCA on the standardised human dataset. The first variable PC1 captures 72.4% of the variance and together with the second variable PC2 they capture so much as 80.2% of the variance.
+```{r}
 pca_human_std <- prcomp(human_std)
 sum_pca = summary(pca_human_std)
 sum_pca
-cat("\n")
 round(100*sum_pca$importance[2, ], digits = 1)
+```
+Ultimately let us plot the PCA performed on the standardised human dataset by means of a biplot. 
+```{r}
 biplot(pca_human_std, choices=1:2, cex=c(0.5, 1), col=c("gray", "red"))
 ```
 
