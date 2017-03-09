@@ -1,21 +1,22 @@
 ---
 title: "Introduction to Open Data Science - Final assignment"
+author: Emanuela Giovanna Calabi
+date: 06.03.2017
 output:
   html_document:
     code_folding: hide
 ---
 
-Emanuela Giovanna Calabi
-
-06.03.17
-
 emanuela.calabi@helsinki.fi
 
 ## Abstract
 
+The following analysis was made by a Computer Science undergraduate as final assignment for the MOOC "Introduction to Open Data Science". The "Human development index" dataset was used for this analysis. The analysis is concerned with the mean years of education in countries of the world and aims to find which factors are associated with a high or low mean. Statistical tools have been uses to read, manipulate and plot data, in particular pairplots, correlation plots, linear regression, linear discriminant analysis and k-means using the R programming language.
+
 ## Introduction
 
 The object of this analysis is the Human Development Index. The "human" dataset contains various indicators for each country, which quantify socio-economical wealth and gender equality of such country. More info on the data can be found here: http://hdr.undp.org/en/content/human-development-index-hdi.
+
 The following analysis concerns the the mean years of education (edu.mean) and its relations to the other variables in the set. I expect that countries with a higher edu.mean have a high Gross National Income per capita, longer life expectancy at birth and longer expectancy of education. On the contrary, I suppose that a lower edu.mean corresponds to a higher Gender Inequality Index and a higher adolescent birthrate.
 
 ## Data wrangling
@@ -102,38 +103,13 @@ twcss <- sapply(1:10, function(k){kmeans(dist_human, k)$tot.withinss})
 plot(1:10, twcss, type='b')
 ```
 
-After finding out the number of clusters needed, we can proceed and compute K-means. 
+After finding out the number of clusters needed, we can proceed and compute K-means. We used the euclidean method to determine the distance between observation. The variable GNI is the one where the difference is most clear compared to the pairplot without clusters.
 ```{r}
 set.seed(123)
 km_human <- kmeans(dist_human, centers=2)
 pairs(human, col=km_human$cluster)
 ```
 
+## Conclusion
 
-Now let us perform Principal Component Analysis on the data and visualise the results by means of a biplot.
-```{r warning=FALSE}
-pca_human <- prcomp(human)
-biplot(pca_human, choices=1:2, cex=c(0.8, 1), col=c("gray", "red"))
-```
-
-Similar to the results we obtained in the Data Analysis task in Week 5 of the Introduction to Open Data Science course, we can only see one arrow indicating GNI. All other arrows representing the remaining variables are not visible because they have 0 length. This means that the variable GNI captures all the variance. However, the majority of countries' names apper as a conglomerate in the middle of the biplot, making it unreadable. For these reasons the biplot is not informative and we need to perform some further data manipulation prior to performing PCA.
-
-
-Let us standardise the dataset first.
-```{r}
-human_std <- scale(human)
-summary(human_std)
-```
-
-Secondly, we can now perform PCA on the standardised human dataset. The first variable PC1 captures 72.4% of the variance and together with the second variable PC2 they capture so much as 80.2% of the variance.
-```{r}
-pca_human_std <- prcomp(human_std)
-sum_pca = summary(pca_human_std)
-sum_pca
-round(100*sum_pca$importance[2, ], digits = 1)
-```
-Ultimately let us plot the PCA performed on the standardised human dataset by means of a biplot. 
-```{r}
-biplot(pca_human_std, choices=1:2, cex=c(0.5, 1), col=c("gray", "red"))
-```
-
+After the data analisis, it emerges that edu.mean is positively correlated to life.exp, edu.exp, edu2.fm and GNI. Edu.mean can also be explained by taking into consideration edu.exp, life.exp and edu2.fm as explanatory variables. Moreover edu2.fm is the most influent explanatory variable. On the other hand countries with a lower edu.mean experience higher values in GII and ado.birth.
